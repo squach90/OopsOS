@@ -15,20 +15,10 @@ void sys_reboot(void) {
 }
 
 void sys_shutdown(void) {
-    // 1. QEMU (Newer versions)
+    // Only QEMU
     outw(0x604, 0x2000);
 
-    // 2. QEMU (Older versions)
-    outw(0xB004, 0x2000);
-
-    // 3. VirtualBox
-    outw(0x4004, 0x3400);
-
-    // 4. Bochs / Older QEMU
-    outw(0x8900, 0x8900);
-
-    term_writestring("\nShutdown failed. ACPI not implemented.");
-    while(1) { asm("hlt"); }
+    term_writestring("\nShutdown failed.\n");
 }
 
 static inline bool keyboard_data_available(void) {
