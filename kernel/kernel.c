@@ -14,6 +14,23 @@ void sys_reboot(void) {
     outb(0x64, 0xFE);
 }
 
+void sys_shutdown(void) {
+    // 1. QEMU (Newer versions)
+    outw(0x604, 0x2000);
+
+    // 2. QEMU (Older versions)
+    outw(0xB004, 0x2000);
+
+    // 3. VirtualBox
+    outw(0x4004, 0x3400);
+
+    // 4. Bochs / Older QEMU
+    outw(0x8900, 0x8900);
+
+    term_writestring("\nShutdown failed. ACPI not implemented.");
+    while(1) { asm("hlt"); }
+}
+
 static inline bool keyboard_data_available(void) {
     return inb(0x64) & 1;
 }
@@ -31,7 +48,13 @@ void term_shell(void) {
             if (scancode == 0x1C) { // ENTER
                 command_buffer[buffer_index] = '\0';
                 term_putchar('\n');
-                if (strcmp(command_buffer, "reboot") == 0) sys_reboot();
+                if (strcmp(command_buffer, "reboot") == 0) {
+                    term_writestring("Reboot...");
+                    sys_reboot();
+                } else if (strcmp(command_buffer, "shutdown") == 0) {
+                    term_writestring("Shutting down...");
+                    sys_shutdown();
+                }
                 buffer_index = 0;
                 term_writestring("> ");
                 continue;
