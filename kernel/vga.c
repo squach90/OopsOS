@@ -62,3 +62,23 @@ void term_putchar_at(char c, size_t row, size_t col) {
 void term_writestring(const char* data) {
     for (size_t i = 0; data[i] != '\0'; i++) term_putchar(data[i]);
 }
+
+void term_putchar_color(char c, uint8_t color) {
+    if (c == '\n') {
+        terminal_column = 0;
+        terminal_row++;
+        if (terminal_row >= 25) terminal_row = 0; // simple scroll wrap
+        return;
+    }
+
+    size_t index = terminal_row * 80 + terminal_column;
+    uint16_t* vga = (uint16_t*)0xB8000;
+    vga[index] = (uint16_t)color << 8 | (uint8_t)c;
+
+    terminal_column++;
+    if (terminal_column >= 80) {
+        terminal_column = 0;
+        terminal_row++;
+        if (terminal_row >= 25) terminal_row = 0;
+    }
+}

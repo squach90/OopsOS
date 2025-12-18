@@ -23,6 +23,7 @@ void term_putchar(char character);
 void term_putchar_at(char c, size_t row, size_t col);
 void term_writestring(const char* data);
 void update_cursor(size_t row, size_t column);
+void term_putchar_color(char c, uint8_t color);
 uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg);
 
 #endif

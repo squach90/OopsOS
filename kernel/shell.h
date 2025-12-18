@@ -6,7 +6,7 @@ typedef void (*CommandHandler)(const char* args);
 typedef struct {
     const char* name;
     const char* description;
-    CommandHandler handler;
+    void (*handler)(int argc, char* argv[]);
 } Command;
 
 extern Command commands[];

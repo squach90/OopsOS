@@ -3,13 +3,13 @@
 #include "libc.h"
 #include "keyboard.h"
 
-void cmd_reboot(void) {
+void cmd_reboot() {
     term_writestring("Rebooting...\n");
     while (inb(0x64) & 0x02);
     outb(0x64, 0xFE);
 }
 
-void cmd_shutdown(void) {
+void cmd_shutdown() {
     term_writestring("Shutting down...\n");
     term_clear(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
     terminal_column = 0;
@@ -30,22 +30,53 @@ void cmd_shutdown(void) {
     }
 }
 
-void cmd_echo(const char* args, char* agrv[]) {
-    // int rainbowFlag = 0;
+void cmd_echo(int argc, char* argv[]) {
+    int rainbowFlag = 0;
 
-    // for (int i = 1; agrv[i]; i++) { // MAKE IT WORK
-    //     if (strcmp(agrv[i], "-rainbow") == 0) {
-    //         rainbowFlag = 1;
-    //         term_writestring("rainbow");
-    //         break;
-    //     }
-    // }
-
-    // check if !null
-    if (args && *args) {
-        term_writestring(args);
+    for (int i = 1; argv[i]; i++) {
+        if (strcmp(argv[i], "-rainbow") == 0) {
+            rainbowFlag = 1;
+            break;
+        }
     }
+
+    uint8_t rainbowColors[] = {
+        0x04, // red
+        0x0C, // light red
+        0x0E, // yellow
+        0x02, // green
+        0x03, // cyan
+        0x09, // blue
+        0x05, // magenta
+        0x0D  // light magenta
+    };
+
+    int colorCount = sizeof(rainbowColors)/sizeof(rainbowColors[0]);
+    int colorIndex = 0;
+
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-rainbow") == 0) continue;
+
+        char* arg = argv[i];
+        for (int j = 0; arg[j]; j++) {
+            char c = arg[j];
+            if (rainbowFlag) {
+                term_putchar_color(c, rainbowColors[colorIndex % colorCount] | (VGA_COLOR_BLACK << 4));
+                colorIndex++;
+            } else {
+                term_putchar(c);
+            }
+        }
+    }
+
     term_writestring("\n");
+}
+
+
+void cmd_clear() {
+    term_clear(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    terminal_column = 0;
+    terminal_row = 0;
 }
 
 void cmd_help() {
@@ -62,6 +93,7 @@ void cmd_help() {
 // === COMMAND TABLE ===
 
 Command commands[] = {
+    {"clear", "Clear the screen",               cmd_clear},
     {"echo", "Print something one the screen",  cmd_echo},
     {"help", "Show this help",                  cmd_help},
     {"reboot",   "Reboot the system",           cmd_reboot},
@@ -71,26 +103,39 @@ Command commands[] = {
 
 
 void execute_command(char* input) {
-    // Split command and args
-    char* args = NULL;
-    for (int i = 0; input[i]; i++) {
-        if (input[i] == ' ') {
-            input[i] = '\0';
-            args = &input[i + 1];
-            break;
+    char* argv[16];
+    int argc = 0;
+
+    // Split input by spaces
+    char* p = input;
+    while (*p && argc < 15) {
+        // Skip spaces
+        while (*p == ' ') p++;
+        if (!*p) break;
+
+        argv[argc++] = p;
+
+        // Find end of token
+        while (*p && *p != ' ') p++;
+        if (*p) {
+            *p = '\0';
+            p++;
         }
     }
+    argv[argc] = NULL;
+
+    if (argc == 0) return;
 
     // Find and execute command
     for (int i = 0; commands[i].name != NULL; i++) {
-        if (strcmp(input, commands[i].name) == 0) {
-            commands[i].handler(args);
+        if (strcmp(argv[0], commands[i].name) == 0) {
+            commands[i].handler(argc, argv); // pass full argc/argv
             return;
         }
     }
 
     term_writestring("Unknown command: ");
-    term_writestring(input);
+    term_writestring(argv[0]);
     term_writestring("\n");
 }
 
