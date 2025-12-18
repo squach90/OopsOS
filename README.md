@@ -2,4 +2,4 @@
 
 ## TODO
 
-- [ ] keyboard shift (ex: shift+a = A)
+- [x] keyboard shift (ex: shift+a = A)
