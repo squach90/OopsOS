@@ -28,7 +28,7 @@ void sys_shutdown(void) {
     term_writestring("\nYOU CAN NOW PRESS THE POWER BUTTON\n");
     asm volatile("cli");
 
-    // 2. Infinite loop to prevent the CPU from ever moving forward
+    // inf loop to prevent the CPU from ever moving forward
     while(1) {
         asm volatile("hlt");
     }
