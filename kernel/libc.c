@@ -88,3 +88,47 @@ int atoi(const char* s) {
 
     return result * sign;
 }
+
+int rtc_is_updating() {
+    outb(0x70, 0x0A);
+    return inb(0x71) & 0x80;
+}
+
+uint8_t rtc_read(uint8_t reg) {
+    outb(0x70, reg);
+    return inb(0x71);
+}
+
+uint8_t bcd_to_bin(uint8_t val) {
+    return (val & 0x0F) + ((val / 16) * 10);
+}
+
+void rtc_read_time(struct rtc_time* t) {
+    // wait until RTC not updating
+    while (rtc_is_updating());
+
+    uint8_t sec   = rtc_read(0x00);
+    uint8_t min   = rtc_read(0x02);
+    uint8_t hour  = rtc_read(0x04);
+    uint8_t day   = rtc_read(0x07);
+    uint8_t month = rtc_read(0x08);
+    uint8_t year  = rtc_read(0x09);
+    uint8_t regB  = rtc_read(0x0B);
+
+    // convert if BCD
+    if (!(regB & 0x04)) {
+        sec   = bcd_to_bin(sec);
+        min   = bcd_to_bin(min);
+        hour  = bcd_to_bin(hour);
+        day   = bcd_to_bin(day);
+        month = bcd_to_bin(month);
+        year  = bcd_to_bin(year);
+    }
+
+    t->sec   = sec;
+    t->min   = min;
+    t->hour  = hour;
+    t->day   = day;
+    t->month = month;
+    t->year  = 2000 + year; // usually
+}

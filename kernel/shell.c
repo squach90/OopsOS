@@ -106,13 +106,23 @@ void cmd_setup_user() {
     term_printf("Enter username: ");
     term_readline(buf, sizeof(buf));
 
-    username = buf; // or copy it safely
+    username = buf;
     term_printf("Done\n");
 }
 
-
 void cmd_whoami() {
     term_printf("%s\n", username);
+}
+
+void cmd_date() {
+    struct rtc_time t;
+    rtc_read_time(&t);
+
+    term_printf(
+        "%d/%d/%d %d:%d:%d\n",
+        t.day, t.month, t.year,
+        t.hour, t.min, t.sec
+    );
 }
 
 // === COMMAND TABLE ===
@@ -125,7 +135,8 @@ Command commands[] = {
     {"shutdown", "Shutdown the system",         cmd_shutdown},
     {"version", "Show version of the kernel",   cmd_version},
     {"whoami", "Show current user",             cmd_whoami},
-    {"stpUser", "Setup current user",           cmd_setup_user},
+    {"setup_user", "Setup current user",        cmd_setup_user},
+    {"date", "Show current date/time (UTC)",    cmd_date},
     {NULL, NULL, NULL}
 };
 
