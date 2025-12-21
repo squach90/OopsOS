@@ -5,6 +5,7 @@
 - [x] keyboard shift (ex: shift+a = A)
 - [x] add UP to get last command
 - [x] LEFT & RIGHT for cursor
+- [ ] "man" page
 
 ### Sound
 
