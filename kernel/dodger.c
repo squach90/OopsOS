@@ -13,7 +13,7 @@ int highScore = 0;
 int lines = 0;
 
 void init_seed() {
-    seed = timestamp(); // use time to set seed
+    seed = timestamp(); // use timestamp to set seed
 }
 
 unsigned int rand(void) {
@@ -40,7 +40,7 @@ void game_dodge() {
 
     int tick = 0;
     int speed = 10;       // bigger = slower game
-    int delay_time = 10000000; // adjust for smoother delay
+    int delay_time = 10000000;
 
     while (1) {
         // Handle player input
@@ -77,7 +77,7 @@ void game_dodge() {
         }
 
 
-        // Move blocks down every 'speed' ticks
+        // Move blocks every speed ticks
         if (tick % speed == 0) {
             // shift rows down
             for (int y = HEIGHT - 1; y > 0; y--)

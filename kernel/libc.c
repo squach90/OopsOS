@@ -138,7 +138,7 @@ void rtc_read_time(struct rtc_time* t) {
     t->hour  = hour;
     t->day   = day;
     t->month = month;
-    t->year  = 2000 + year; // usually
+    t->year  = 2000 + year;
 }
 
 int is_leap_year(int year) {

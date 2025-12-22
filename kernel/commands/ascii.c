@@ -1,5 +1,5 @@
 void cmd_ascii(int argc, char **argv) {
-    (void)argc;  // suppress unused variable warning
+    (void)argc;
     (void)argv;
     term_printf(
         "   ___                   ___  ____\n"
