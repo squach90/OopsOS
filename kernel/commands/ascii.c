@@ -1,0 +1,12 @@
+void cmd_ascii(int argc, char **argv) {
+    (void)argc;  // suppress unused variable warning
+    (void)argv;
+    term_printf(
+        "   ___                   ___  ____\n"
+        "  / _ \\  ___  _ __  ___ / _ \\/ ___|\n"
+        " | | | |/ _ \\| '_ \\/ __| | | \\___ \\\n"
+        " | |_| | (_) | |_) \\__ \\ |_| |___) |\n"
+        "  \\___/ \\___/| .__/|___/\\___/|____/\n"
+        "             |_|\n"
+    );
+}

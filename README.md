@@ -6,6 +6,7 @@
 - [x] add UP to get last command
 - [x] LEFT & RIGHT for cursor
 - [ ] "man" page
+- [ ] add scroll
 
 ### Sound
 

@@ -4,24 +4,14 @@
 #include "shell.h"
 #include "libc.h"
 #include "info.h"
-
-void print_logo(void) {
-    term_printf(
-        "   ___                   ___  ____\n"
-        "  / _ \\  ___  _ __  ___ / _ \\/ ___|\n"
-        " | | | |/ _ \\| '_ \\/ __| | | \\___ \\\n"
-        " | |_| | (_) | |_) \\__ \\ |_| |___) |\n"
-        "  \\___/ \\___/| .__/|___/\\___/|____/\n"
-        "             |_|\n"
-    );
-}
+#include "commands/commands.h"
 
 void kernel_main(void) {
     // Init
     term_init();
 
     // Splash screen
-    print_logo();
+    cmd_ascii(0, NULL);
     term_printf("   OopsOS v%s (c) 2025 squach90\n", kernel_version);
     term_printf("   Press ENTER to start...\n");
 
@@ -35,10 +25,7 @@ void kernel_main(void) {
     }
 
     // Clear and start shell
-    term_clear(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
-    terminal_column = 0;
-    terminal_row = 0;
-    update_cursor(0, 0);
+    cmd_clear(0, NULL);
 
     term_shell();
 }

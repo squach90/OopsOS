@@ -8,7 +8,7 @@ KERNEL_DIR=kernel
 
 # --- CHANGES START HERE ---
 # 1. Automatically find all .c files in the kernel directory
-C_SOURCES=$(wildcard $(KERNEL_DIR)/*.c)
+C_SOURCES=$(wildcard $(KERNEL_DIR)/*.c) $(wildcard $(KERNEL_DIR)/commands/*.c)
 
 # 2. Convert that list of .c files into a list of .o files in the build directory
 # Example: kernel/kernel.c -> build/kernel.o, kernel/libc.c -> build/libc.o
@@ -35,7 +35,8 @@ $(BUILD_DIR)/boot.o: boot.s | $(BUILD_DIR)
 
 # --- NEW PATTERN RULE ---
 # This compiles ANY .c file in kernel/ into a .o file in build/
-$(BUILD_DIR)/%.o: $(KERNEL_DIR)/%.c | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: $(KERNEL_DIR)/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Link kernel + bootloader (now uses the $(OBJS) list)
