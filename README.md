@@ -8,6 +8,8 @@
 - [x] add scroll
 - [x] add Xmas tree cmd
 - [ ] "man" page like
+- [ ] remove help command
+- [ ] find command to make (look to alpine linux commands)
 
 ### Keyboard
 
