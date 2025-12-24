@@ -172,3 +172,7 @@ uint32_t timestamp() {
     uint32_t seconds = days*86400 + t.hour*3600 + t.min*60 + t.sec;
     return seconds;
 }
+
+void sleep(uint32_t count) {
+    for (volatile uint32_t i = 0; i < count; i++);
+}

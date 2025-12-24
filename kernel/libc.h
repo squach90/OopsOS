@@ -27,5 +27,6 @@ void rtc_read_time(struct rtc_time* t);
 void strcpy(char* dest, const char* src);
 uint32_t timestamp();
 unsigned int rand(void);
+void sleep(uint32_t count);
 
 #endif

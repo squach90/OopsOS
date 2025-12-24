@@ -7,9 +7,11 @@
 - [x] LEFT & RIGHT for cursor
 - [x] add scroll
 - [x] add Xmas tree cmd
+- [x] 50 cmds history
 - [ ] "man" page like
 - [ ] remove help command
 - [ ] find command to make (look to alpine linux commands)
+- [ ] info commands
 
 ### Keyboard
 
@@ -17,7 +19,7 @@
 
 ### Sound
 
-- [ ] simple BEEP
+- [ ] (simple BEEP)
 
 ### Filesystem
 

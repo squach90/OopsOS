@@ -5,14 +5,31 @@
 #include "info.h"
 #include "commands/commands.h"
 
-#define CMD_HISTORY_SIZE 128
+#define MAX_HISTORY 50      // nb max of command in history
+#define CMD_LEN 128
 
-char last_command[CMD_HISTORY_SIZE] = {0};
+char history[MAX_HISTORY][CMD_LEN];
+int history_count = 0;       // Total commands currently stored (caps at 50)
+int history_write_idx = 0;   // Where the next command will be saved
+int history_browse_idx = -1; // Where the user is currently looking (-1 = not browsing)
 
 char command_buffer[128];
 int buffer_index = 0;   // cursor position
 int buffer_length = 0;  // total chars in buffer
 
+void clear_current_line(int* index, int* length) {
+    // Move cursor back to start of prompt
+    while (*index > 0) {
+        (*index)--;
+        terminal_column--;
+    }
+    // Fill with spaces to clear existing text
+    for (int i = 0; i < *length; i++) {
+        term_putchar_at(' ', terminal_row, terminal_column + i);
+    }
+    *length = 0;
+    update_cursor(terminal_row, terminal_column);
+}
 
 void print_prompt(void) { // user@hostname:directory$
     term_printf_color(VGA_COLOR_LIGHT_GREEN, username);
@@ -72,23 +89,42 @@ void term_shell(void) {
             uint8_t scancode = inb(0x60);
 
             // UP
-            if (scancode == 0x48) {
-                // clear line
-                while (buffer_index > 0) {
-                    buffer_index--;
-                    terminal_column--;
-                    term_putchar_at(' ', terminal_row, terminal_column);
+            if (scancode == 0x48 && history_count > 0) {
+                if (history_browse_idx == -1) {
+                    history_browse_idx = (history_write_idx - 1 + MAX_HISTORY) % MAX_HISTORY;
+                } else {
+                    int oldest_idx = (history_count < MAX_HISTORY) ? 0 : history_write_idx;
+                    if (history_browse_idx != oldest_idx) {
+                        history_browse_idx = (history_browse_idx - 1 + MAX_HISTORY) % MAX_HISTORY;
+                    }
                 }
 
-                // copy last command
-                int len = strlen(last_command);
-                for (int i = 0; i < len; i++) {
-                    command_buffer[i] = last_command[i];
-                    term_putchar(command_buffer[i]);
-                }
+                clear_current_line(&buffer_index, &buffer_length);
+                strcpy(command_buffer, history[history_browse_idx]);
+                buffer_length = strlen(command_buffer);
+                buffer_index = buffer_length;
+                term_printf(command_buffer);
+                continue;
+            }
 
-                buffer_index = len; // cursor at end
-                buffer_length = len; // full buffer
+            // DOWN ARROW
+            if (scancode == 0x50) {
+                if (history_browse_idx != -1) {
+                    // Move forward
+                    history_browse_idx = (history_browse_idx + 1) % MAX_HISTORY;
+
+                    if (history_browse_idx == history_write_idx) {
+                        history_browse_idx = -1;
+                        clear_current_line(&buffer_index, &buffer_length);
+                        command_buffer[0] = '\0';
+                    } else {
+                        clear_current_line(&buffer_index, &buffer_length);
+                        strcpy(command_buffer, history[history_browse_idx]);
+                        buffer_length = strlen(command_buffer);
+                        buffer_index = buffer_length;
+                        term_printf(command_buffer);
+                    }
+                }
                 continue;
             }
 
@@ -112,11 +148,14 @@ void term_shell(void) {
             if (!c) continue;
 
             if (c == '\n') {
-                command_buffer[buffer_index] = '\0';
+                command_buffer[buffer_length] = '\0';
                 term_putchar('\n');
 
-                if (buffer_index > 0) {
-                    strcpy(last_command, command_buffer); // save last cmd
+                if (buffer_length > 0) {
+                    strcpy(history[history_write_idx], command_buffer);
+                    history_write_idx = (history_write_idx + 1) % MAX_HISTORY;
+                    if (history_count < MAX_HISTORY) history_count++;
+                    history_browse_idx = -1;
                     execute_command(command_buffer);
                 }
 
